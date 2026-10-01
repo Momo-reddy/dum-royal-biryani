@@ -1,0 +1,18 @@
+{
+  "overview": "A restaurant website for DUM | The Royal Biryani Kitchen with a price-free menu and an online table reservation system.",
+  "features": [
+    "Browse the menu without dish prices",
+    "Reserve a table with date, time, and party size",
+    "Get a booking reference on confirmation",
+    "Staff sign-in to manage reservations",
+    "Confirm or cancel bookings with guest email notification"
+  ],
+  "category": "restaurant",
+  "tags": [
+    "restaurant",
+    "reservations",
+    "menu",
+    "indian-cuisine"
+  ],
+  "last_updated": "2026-10-01T13:14:22.027Z"
+}

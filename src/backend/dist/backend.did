@@ -1,0 +1,196 @@
+type Value = 
+ variant {
+   "bool": bool;
+   float: float64;
+   "int": int;
+   "nat": nat;
+   "null";
+   "text": text;
+ };
+type UserRole = 
+ variant {
+   admin;
+   guest;
+   user;
+ };
+type TimeSlot = 
+ record {
+   available: bool;
+   time: text;
+ };
+type Review = 
+ record {
+   date: text;
+   id: nat;
+   rating: nat;
+   reviewerName: text;
+   "text": text;
+ };
+type Result__1 = 
+ variant {
+   err: Error;
+   ok;
+ };
+type Result = 
+ record {
+   hasMore: bool;
+   rows: vec vec Cell;
+ };
+type RestaurantProfile = 
+ record {
+   addressLine1: text;
+   addressLine2: text;
+   city: text;
+   closingTime: text;
+   cuisine: text;
+   hoursSummary: text;
+   name: text;
+   phone: text;
+   postalCode: text;
+   priceRangeHigh: nat;
+   priceRangeLow: nat;
+   priceRangeNote: text;
+   rating: float64;
+   reviewCount: nat;
+   state: text;
+   tagline: text;
+   tags: vec text;
+ };
+type ReservationStatus = 
+ variant {
+   cancelled;
+   confirmed;
+   pending;
+ };
+type ReservationInput = 
+ record {
+   date: text;
+   email: text;
+   guestName: text;
+   partySize: nat;
+   phone: text;
+   specialRequests: opt text;
+   timeSlot: text;
+ };
+type ReservationError = 
+ variant {
+   alreadyCancelled;
+   closedDay;
+   invalidInput: text;
+   invalidTimeSlot;
+   notAuthorized;
+   notFound;
+   pastDate;
+   slotUnavailable;
+ };
+type Reservation = 
+ record {
+   createdAt: int;
+   date: text;
+   email: text;
+   guestName: text;
+   id: nat;
+   partySize: nat;
+   phone: text;
+   reference: text;
+   specialRequests: opt text;
+   status: ReservationStatus;
+   timeSlot: text;
+ };
+type RatingBreakdown = 
+ record {
+   count: nat;
+   stars: nat;
+ };
+type Photo = 
+ record {
+   caption: text;
+   id: nat;
+   imageRef: text;
+   title: text;
+ };
+type MenuItem = 
+ record {
+   categoryId: nat;
+   description: text;
+   id: nat;
+   isSignature: bool;
+   isVeg: bool;
+   name: text;
+   order: nat;
+ };
+type MenuCategory = 
+ record {
+   description: text;
+   id: nat;
+   name: text;
+   order: nat;
+ };
+type Error = 
+ variant {
+   AmbiguousAttribute: record {
+                         field: text;
+                         sources: vec text;
+                       };
+   FrontendOriginMismatch: record {
+                             expected: vec text;
+                             got: text;
+                           };
+   FrontendOriginsNotConfigured;
+   MalformedCandid;
+   MissingField: text;
+   MixedSsoSources: record {
+                      otherKeys: vec text;
+                      ssoKeys: vec text;
+                    };
+   NoAttributes;
+   Stale: record {ageNs: nat;};
+   UnknownNonce;
+   UntrustedSsoSource: record {domain: text;};
+ };
+type Cell = 
+ record {
+   name: text;
+   value: Value;
+ };
+service : {
+  _initialize_access_control: () -> ();
+  _internet_identity_sign_in_finish: () -> (Result__1);
+  _internet_identity_sign_in_start: () -> (blob);
+  assignCallerUserRole: (user: principal, role: UserRole) -> ();
+  /// Staff-only: cancel a reservation and email the guest.
+  cancelReservation: (id: nat) ->
+   (variant {
+      err: ReservationError;
+      ok: Reservation;
+    });
+  /// Staff-only: confirm a pending reservation and email the guest.
+  confirmReservation: (id: nat) ->
+   (variant {
+      err: ReservationError;
+      ok: Reservation;
+    });
+  /// Public: create a table reservation. No sign-in required.
+  createReservation: (input: ReservationInput) ->
+   (variant {
+      err: ReservationError;
+      ok: Reservation;
+    });
+  execute: (qJson: text) -> (Result) query;
+  getApiDoc: () -> (text) query;
+  getCallerUserRole: () -> (UserRole) query;
+  getProfile: () -> (RestaurantProfile) query;
+  getRatingBreakdown: () -> (vec RatingBreakdown) query;
+  isCallerAdmin: () -> (bool) query;
+  /// Public: list bookable time slots for a date (YYYY-MM-DD).
+  listAvailableSlots: (date: text) -> (vec TimeSlot) query;
+  listCategories: () -> (vec MenuCategory) query;
+  listMenuItems: () -> (vec MenuItem) query;
+  listMenuItemsByCategory: (categoryId: nat) -> (vec MenuItem) query;
+  listPhotos: () -> (vec Photo) query;
+  /// Staff-only: list reservations, optionally filtered by date and status.
+  listReservations: (date: opt text, status: opt ReservationStatus) ->
+   (vec Reservation) query;
+  listReviews: () -> (vec Review) query;
+  schema: () -> (text) query;
+}
